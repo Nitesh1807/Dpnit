@@ -3151,7 +3151,7 @@
             <input type="checkbox" id="su-terms" name="terms" required />
             <label for="su-terms">I agree to the <a href="#" id="suTermsLink">Terms &amp; Conditions</a>, <a href="#" id="suPrivacyLink">Privacy Policy</a> and <a href="#" id="suGuidelinesLink">Guidelines</a>.</label>
           </div>
-          <div class="cf-turnstile" data-sitekey="0x4AAAAADveoceohjaeLM0GK" data-callback="onTurnstileSuccess" data-theme="dark" id="signupTurnstile"></div>
+          <div id="signupTurnstile" style="margin-bottom:12px;"></div>
           <button type="submit" class="btn-primary auth-submit" id="signupSubmitBtn" disabled>
             Create account
           </button>
@@ -3169,7 +3169,7 @@
           <div class="auth-subrow">
             <button type="button" class="auth-link-btn" id="forgotPasswordBtn">Forgot password?</button>
           </div>
-          <div class="cf-turnstile" data-sitekey="0x4AAAAADveoceohjaeLM0GK" data-theme="dark" id="loginTurnstile"></div>
+          <div id="loginTurnstile" style="margin-bottom:12px;"></div>
           <button type="submit" class="btn-primary auth-submit" id="loginSubmitBtn">
             Log in
           </button>
@@ -3953,6 +3953,7 @@
       setActiveTab('explore-page');
     } else if (pageName === 'auth-page') {
       showView(['authSection']);
+      renderTurnstiles();
     }
   }
 
@@ -4198,6 +4199,27 @@
       ? `Already have an account? <button type="button" onclick="setAuthMode('login')">Log in</button>`
       : `New to DpNit? <button type="button" onclick="setAuthMode('signup')">Create an account</button>`;
     setPasswordResetMode(false);
+    setTimeout(renderTurnstiles, 100);
+  }
+
+  // Render Turnstile widgets explicitly in both login and signup containers.
+  // We use explicit mode so it works inside hidden/toggled forms.
+  const TURNSTILE_SITE_KEY = '0x4AAAAADveoceohjaeLM0GK';
+  let signupTurnstileWidgetId = null;
+  let loginTurnstileWidgetId = null;
+
+  function renderTurnstiles(){
+    if (typeof turnstile === 'undefined') return; // script not loaded yet
+    const signupEl = document.getElementById('signupTurnstile');
+    const loginEl = document.getElementById('loginTurnstile');
+    if (signupEl && !signupEl.dataset.rendered) {
+      signupTurnstileWidgetId = turnstile.render(signupEl, { sitekey: TURNSTILE_SITE_KEY, theme: 'dark' });
+      signupEl.dataset.rendered = '1';
+    }
+    if (loginEl && !loginEl.dataset.rendered) {
+      loginTurnstileWidgetId = turnstile.render(loginEl, { sitekey: TURNSTILE_SITE_KEY, theme: 'dark' });
+      loginEl.dataset.rendered = '1';
+    }
   }
 
   document.getElementById('authTabSignup').addEventListener('click', () => setAuthMode('signup'));
@@ -4271,8 +4293,11 @@
     const email = document.getElementById('su-email').value.trim();
     const password = document.getElementById('su-password').value;
     if (!SUPABASE_ENABLED) { completeLogin({ name, email, photoURL: null }); e.target.reset(); return; }
-    const captchaToken = document.querySelector('#signupTurnstile [name="cf-turnstile-response"]')?.value || '';
+    const captchaToken = (typeof turnstile !== 'undefined' && signupTurnstileWidgetId != null)
+      ? turnstile.getResponse(signupTurnstileWidgetId) : '';
+    if (SUPABASE_ENABLED && !captchaToken) { showToast('Please wait for the security check to complete.'); return; }
     const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { name }, captchaToken } });
+    if (typeof turnstile !== 'undefined' && signupTurnstileWidgetId != null) turnstile.reset(signupTurnstileWidgetId);
     if (error) { showToast(error.message); return; }
     if (data.session && data.user) await completeLogin(mapAuthUser(data.user, { name, email }));
     showToast(data.session ? 'Account created' : 'Check your email to confirm your account');
@@ -4284,8 +4309,11 @@
     const email = document.getElementById('li-email').value.trim();
     const password = document.getElementById('li-password').value;
     if (!SUPABASE_ENABLED) { completeLogin({ name: email.split('@')[0], email, photoURL: null }); e.target.reset(); return; }
-    const captchaToken = document.querySelector('#loginTurnstile [name="cf-turnstile-response"]')?.value || '';
+    const captchaToken = (typeof turnstile !== 'undefined' && loginTurnstileWidgetId != null)
+      ? turnstile.getResponse(loginTurnstileWidgetId) : '';
+    if (SUPABASE_ENABLED && !captchaToken) { showToast('Please wait for the security check to complete.'); return; }
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password, options: { captchaToken } });
+    if (typeof turnstile !== 'undefined' && loginTurnstileWidgetId != null) turnstile.reset(loginTurnstileWidgetId);
     if (error) { showToast(error.message); return; }
     await completeLogin(mapAuthUser(data.user, { email }));
     e.target.reset();
