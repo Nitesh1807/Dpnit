@@ -1903,6 +1903,7 @@
   .announcement-admin-row input::placeholder{ color:var(--text-dim); }
   .announcement-admin-row input:focus{ outline:none; border-color:var(--lime); }
 </style>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 
@@ -3150,6 +3151,7 @@
             <input type="checkbox" id="su-terms" name="terms" required />
             <label for="su-terms">I agree to the <a href="#" id="suTermsLink">Terms &amp; Conditions</a>, <a href="#" id="suPrivacyLink">Privacy Policy</a> and <a href="#" id="suGuidelinesLink">Guidelines</a>.</label>
           </div>
+          <div class="cf-turnstile" data-sitekey="0x4AAAAADveoceohjaeLM0GK" data-callback="onTurnstileSuccess" data-theme="dark" id="signupTurnstile"></div>
           <button type="submit" class="btn-primary auth-submit" id="signupSubmitBtn" disabled>
             Create account
           </button>
@@ -3167,6 +3169,7 @@
           <div class="auth-subrow">
             <button type="button" class="auth-link-btn" id="forgotPasswordBtn">Forgot password?</button>
           </div>
+          <div class="cf-turnstile" data-sitekey="0x4AAAAADveoceohjaeLM0GK" data-theme="dark" id="loginTurnstile"></div>
           <button type="submit" class="btn-primary auth-submit" id="loginSubmitBtn">
             Log in
           </button>
@@ -4268,7 +4271,8 @@
     const email = document.getElementById('su-email').value.trim();
     const password = document.getElementById('su-password').value;
     if (!SUPABASE_ENABLED) { completeLogin({ name, email, photoURL: null }); e.target.reset(); return; }
-    const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { name } } });
+    const captchaToken = document.querySelector('#signupTurnstile [name="cf-turnstile-response"]')?.value || '';
+    const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { name }, captchaToken } });
     if (error) { showToast(error.message); return; }
     if (data.session && data.user) await completeLogin(mapAuthUser(data.user, { name, email }));
     showToast(data.session ? 'Account created' : 'Check your email to confirm your account');
@@ -4280,7 +4284,8 @@
     const email = document.getElementById('li-email').value.trim();
     const password = document.getElementById('li-password').value;
     if (!SUPABASE_ENABLED) { completeLogin({ name: email.split('@')[0], email, photoURL: null }); e.target.reset(); return; }
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    const captchaToken = document.querySelector('#loginTurnstile [name="cf-turnstile-response"]')?.value || '';
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password, options: { captchaToken } });
     if (error) { showToast(error.message); return; }
     await completeLogin(mapAuthUser(data.user, { email }));
     e.target.reset();
