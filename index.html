@@ -3170,7 +3170,7 @@
             <button type="button" class="auth-link-btn" id="forgotPasswordBtn">Forgot password?</button>
           </div>
           <div id="loginTurnstile" style="margin-bottom:12px;"></div>
-          <button type="submit" class="btn-primary auth-submit" id="loginSubmitBtn">
+          <button type="submit" class="btn-primary auth-submit" id="loginSubmitBtn" disabled>
             Log in
           </button>
         </form>
@@ -4209,15 +4209,27 @@
   let loginTurnstileWidgetId = null;
 
   function renderTurnstiles(){
-    if (typeof turnstile === 'undefined') return; // script not loaded yet
+    if (typeof turnstile === 'undefined') { setTimeout(renderTurnstiles, 300); return; }
     const signupEl = document.getElementById('signupTurnstile');
     const loginEl = document.getElementById('loginTurnstile');
     if (signupEl && !signupEl.dataset.rendered) {
-      signupTurnstileWidgetId = turnstile.render(signupEl, { sitekey: TURNSTILE_SITE_KEY, theme: 'dark' });
+      signupTurnstileWidgetId = turnstile.render(signupEl, {
+        sitekey: TURNSTILE_SITE_KEY,
+        theme: 'dark',
+        callback: () => { document.getElementById('signupSubmitBtn').disabled = !document.getElementById('su-terms').checked; },
+        'expired-callback': () => { document.getElementById('signupSubmitBtn').disabled = true; },
+        'error-callback': () => { document.getElementById('signupSubmitBtn').disabled = true; }
+      });
       signupEl.dataset.rendered = '1';
     }
     if (loginEl && !loginEl.dataset.rendered) {
-      loginTurnstileWidgetId = turnstile.render(loginEl, { sitekey: TURNSTILE_SITE_KEY, theme: 'dark' });
+      loginTurnstileWidgetId = turnstile.render(loginEl, {
+        sitekey: TURNSTILE_SITE_KEY,
+        theme: 'dark',
+        callback: () => { document.getElementById('loginSubmitBtn').disabled = false; },
+        'expired-callback': () => { document.getElementById('loginSubmitBtn').disabled = true; },
+        'error-callback': () => { document.getElementById('loginSubmitBtn').disabled = true; }
+      });
       loginEl.dataset.rendered = '1';
     }
   }
@@ -4295,7 +4307,6 @@
     if (!SUPABASE_ENABLED) { completeLogin({ name, email, photoURL: null }); e.target.reset(); return; }
     const captchaToken = (typeof turnstile !== 'undefined' && signupTurnstileWidgetId != null)
       ? turnstile.getResponse(signupTurnstileWidgetId) : '';
-    if (SUPABASE_ENABLED && !captchaToken) { showToast('Please wait for the security check to complete.'); return; }
     const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { name }, captchaToken } });
     if (typeof turnstile !== 'undefined' && signupTurnstileWidgetId != null) turnstile.reset(signupTurnstileWidgetId);
     if (error) { showToast(error.message); return; }
@@ -4311,7 +4322,6 @@
     if (!SUPABASE_ENABLED) { completeLogin({ name: email.split('@')[0], email, photoURL: null }); e.target.reset(); return; }
     const captchaToken = (typeof turnstile !== 'undefined' && loginTurnstileWidgetId != null)
       ? turnstile.getResponse(loginTurnstileWidgetId) : '';
-    if (SUPABASE_ENABLED && !captchaToken) { showToast('Please wait for the security check to complete.'); return; }
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password, options: { captchaToken } });
     if (typeof turnstile !== 'undefined' && loginTurnstileWidgetId != null) turnstile.reset(loginTurnstileWidgetId);
     if (error) { showToast(error.message); return; }
@@ -4320,7 +4330,8 @@
   });
 
   document.getElementById('su-terms').addEventListener('change', (e) => {
-    document.getElementById('signupSubmitBtn').disabled = !e.target.checked;
+    const turnstileDone = typeof turnstile !== 'undefined' && signupTurnstileWidgetId != null && !!turnstile.getResponse(signupTurnstileWidgetId);
+    document.getElementById('signupSubmitBtn').disabled = !e.target.checked || !turnstileDone;
   });
 
   document.getElementById('forgotPasswordBtn').addEventListener('click', async () => {
