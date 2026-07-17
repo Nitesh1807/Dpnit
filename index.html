@@ -1714,6 +1714,7 @@
   .auth-tabs[data-active="login"] .auth-tab-bg{ transform:translateX(100%); }
   .auth-form{ display:flex; flex-direction:column; gap:16px; }
   .auth-form .field input{ background:var(--ink-soft); }
+  .auth-security-note{ margin:-2px 0 0; color:var(--text-dim); font-size:0.78rem; line-height:1.45; text-align:center; }
   .auth-terms-row{ display:flex; align-items:flex-start; gap:9px; font-size:0.8rem; line-height:1.5; color:var(--text-dim); }
   .auth-terms-row input[type="checkbox"]{ width:16px; height:16px; margin-top:2px; flex-shrink:0; accent-color:var(--lime); cursor:pointer; }
 .auth-terms-row label{ cursor:pointer; }
@@ -1901,7 +1902,6 @@
   .announcement-admin-row input::placeholder{ color:var(--text-dim); }
   .announcement-admin-row input:focus{ outline:none; border-color:var(--lime); }
 </style>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 
@@ -3149,7 +3149,7 @@
             <input type="checkbox" id="su-terms" name="terms" required />
             <label for="su-terms">I agree to the <a href="#" id="suTermsLink">Terms &amp; Conditions</a>, <a href="#" id="suPrivacyLink">Privacy Policy</a> and <a href="#" id="suGuidelinesLink">Guidelines</a>.</label>
           </div>
-          <div id="signupTurnstile" style="margin-bottom:12px;"></div>
+          <p class="auth-security-note">Your account details are protected with secure sign-in.</p>
           <button type="submit" class="btn-primary auth-submit" id="signupSubmitBtn" disabled>
             Create account
           </button>
@@ -3167,8 +3167,8 @@
           <div class="auth-subrow">
             <button type="button" class="auth-link-btn" id="forgotPasswordBtn">Forgot password?</button>
           </div>
-          <div id="loginTurnstile" style="margin-bottom:12px;"></div>
-          <button type="submit" class="btn-primary auth-submit" id="loginSubmitBtn" disabled>
+          <p class="auth-security-note">Welcome back — sign in to continue.</p>
+          <button type="submit" class="btn-primary auth-submit" id="loginSubmitBtn">
             Log in
           </button>
         </form>
@@ -3951,7 +3951,6 @@
       setActiveTab('explore-page');
     } else if (pageName === 'auth-page') {
       showView(['authSection']);
-      renderTurnstiles();
     }
   }
 
@@ -4197,39 +4196,6 @@
       ? `Already have an account? <button type="button" onclick="setAuthMode('login')">Log in</button>`
       : `New to Zikalp? <button type="button" onclick="setAuthMode('signup')">Create an account</button>`;
     setPasswordResetMode(false);
-    setTimeout(renderTurnstiles, 100);
-  }
-
-  // Render Turnstile widgets explicitly in both login and signup containers.
-  // We use explicit mode so it works inside hidden/toggled forms.
-  const TURNSTILE_SITE_KEY = '0x4AAAAADveoceohjaeLM0GK';
-  let signupTurnstileWidgetId = null;
-  let loginTurnstileWidgetId = null;
-
-  function renderTurnstiles(){
-    if (typeof turnstile === 'undefined') { setTimeout(renderTurnstiles, 300); return; }
-    const signupEl = document.getElementById('signupTurnstile');
-    const loginEl = document.getElementById('loginTurnstile');
-    if (signupEl && !signupEl.dataset.rendered) {
-      signupTurnstileWidgetId = turnstile.render(signupEl, {
-        sitekey: TURNSTILE_SITE_KEY,
-        theme: 'dark',
-        callback: () => { document.getElementById('signupSubmitBtn').disabled = !document.getElementById('su-terms').checked; },
-        'expired-callback': () => { document.getElementById('signupSubmitBtn').disabled = true; },
-        'error-callback': () => { document.getElementById('signupSubmitBtn').disabled = true; }
-      });
-      signupEl.dataset.rendered = '1';
-    }
-    if (loginEl && !loginEl.dataset.rendered) {
-      loginTurnstileWidgetId = turnstile.render(loginEl, {
-        sitekey: TURNSTILE_SITE_KEY,
-        theme: 'dark',
-        callback: () => { document.getElementById('loginSubmitBtn').disabled = false; },
-        'expired-callback': () => { document.getElementById('loginSubmitBtn').disabled = true; },
-        'error-callback': () => { document.getElementById('loginSubmitBtn').disabled = true; }
-      });
-      loginEl.dataset.rendered = '1';
-    }
   }
 
   document.getElementById('authTabSignup').addEventListener('click', () => setAuthMode('signup'));
@@ -4303,10 +4269,7 @@
     const email = document.getElementById('su-email').value.trim();
     const password = document.getElementById('su-password').value;
     if (!SUPABASE_ENABLED) { completeLogin({ name, email, photoURL: null }); e.target.reset(); return; }
-    const captchaToken = (typeof turnstile !== 'undefined' && signupTurnstileWidgetId != null)
-      ? turnstile.getResponse(signupTurnstileWidgetId) : '';
-    const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { name }, captchaToken } });
-    if (typeof turnstile !== 'undefined' && signupTurnstileWidgetId != null) turnstile.reset(signupTurnstileWidgetId);
+    const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { name } } });
     if (error) { showToast(error.message); return; }
     if (data.session && data.user) await completeLogin(mapAuthUser(data.user, { name, email }));
     showToast(data.session ? 'Account created' : 'Check your email to confirm your account');
@@ -4318,18 +4281,14 @@
     const email = document.getElementById('li-email').value.trim();
     const password = document.getElementById('li-password').value;
     if (!SUPABASE_ENABLED) { completeLogin({ name: email.split('@')[0], email, photoURL: null }); e.target.reset(); return; }
-    const captchaToken = (typeof turnstile !== 'undefined' && loginTurnstileWidgetId != null)
-      ? turnstile.getResponse(loginTurnstileWidgetId) : '';
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password, options: { captchaToken } });
-    if (typeof turnstile !== 'undefined' && loginTurnstileWidgetId != null) turnstile.reset(loginTurnstileWidgetId);
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
     if (error) { showToast(error.message); return; }
     await completeLogin(mapAuthUser(data.user, { email }));
     e.target.reset();
   });
 
   document.getElementById('su-terms').addEventListener('change', (e) => {
-    const turnstileDone = typeof turnstile !== 'undefined' && signupTurnstileWidgetId != null && !!turnstile.getResponse(signupTurnstileWidgetId);
-    document.getElementById('signupSubmitBtn').disabled = !e.target.checked || !turnstileDone;
+    document.getElementById('signupSubmitBtn').disabled = !e.target.checked;
   });
 
   document.getElementById('forgotPasswordBtn').addEventListener('click', async () => {
