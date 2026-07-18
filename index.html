@@ -1902,8 +1902,39 @@
   .announcement-admin-row input::placeholder{ color:var(--text-dim); }
   .announcement-admin-row input:focus{ outline:none; border-color:var(--lime); }
 </style>
+<style>
+  /* ============ PAGE LOADER ============ */
+  #zikalp-loader{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;overflow:hidden;background:#0E0E10;color:#F7F5F0;transition:opacity .55s ease,visibility .55s ease}
+  #zikalp-loader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+  .z-loader-orb{position:absolute;border-radius:50%;filter:blur(12px);opacity:.9;animation:zLoaderDrift 8s ease-in-out infinite alternate}
+  .z-loader-orb--violet{width:max(28vw,260px);height:max(28vw,260px);top:-12vw;left:-8vw;background:#7B61FF}
+  .z-loader-orb--pink{width:max(27vw,250px);height:max(27vw,250px);right:-8vw;bottom:-14vw;background:#FF3D6E;animation-delay:-4s}
+  .z-loader-card{position:relative;width:min(91vw,480px);padding:42px 30px 30px;text-align:center;border:1px solid rgba(255,255,255,.16);border-radius:30px;background:rgba(23,23,27,.68);box-shadow:0 25px 80px rgba(0,0,0,.42);backdrop-filter:blur(18px)}
+  .z-loader-kicker{margin:0 0 21px;color:#C8FF4D;font:700 .72rem/1 var(--font-mono,'monospace');letter-spacing:.16em;text-transform:uppercase}
+  .z-loader-bag-wrap{position:relative;width:102px;height:108px;margin:0 auto 22px;animation:zLoaderFloat 2.5s ease-in-out infinite}
+  .z-loader-bag{position:absolute;bottom:0;left:9px;width:84px;height:75px;display:grid;place-items:center;border:3px solid #F7F5F0;border-radius:18px 18px 23px 23px;background:linear-gradient(135deg,#FF3D6E,#7B61FF);box-shadow:inset 7px 7px 0 rgba(255,255,255,.14),0 10px 27px rgba(255,61,110,.3);font-size:2rem}
+  .z-loader-handle{position:absolute;z-index:2;top:8px;left:29px;width:45px;height:37px;border:3px solid #F7F5F0;border-bottom:0;border-radius:27px 27px 0 0}
+  .z-loader-spark{position:absolute;z-index:3;top:5px;right:0;width:22px;height:22px;background:#C8FF4D;clip-path:polygon(50% 0,61% 36%,100% 50%,61% 64%,50% 100%,39% 64%,0 50%,39% 36%);animation:zLoaderSpin 4s linear infinite}
+  .z-loader-title{margin:0;font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:clamp(2rem,7vw,3.2rem);font-weight:700;line-height:.94;letter-spacing:-.075em}.z-loader-title span{color:#C8FF4D}
+  .z-loader-copy{min-height:22px;margin:16px 0 25px;color:rgba(247,245,240,.7);font-size:.94rem}
+  .z-loader-progress{height:8px;padding:2px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.14)}.z-loader-progress span{display:block;width:35%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#C8FF4D,#fff);box-shadow:0 0 14px #C8FF4D;animation:zLoaderProgress 2.1s cubic-bezier(.47,0,.35,1) infinite}
+  .z-loader-signoff{margin:17px 0 0;color:rgba(247,245,240,.42);font:700 .67rem/1 var(--font-mono,'monospace');letter-spacing:.12em;text-transform:uppercase}
+  @keyframes zLoaderProgress{0%{transform:translateX(-120%)}100%{transform:translateX(340%)}}@keyframes zLoaderFloat{50%{transform:translateY(-9px) rotate(-2deg)}}@keyframes zLoaderSpin{to{transform:rotate(360deg)}}@keyframes zLoaderDrift{to{transform:translate(7vw,4vh) scale(1.12)}}
+  @media(prefers-reduced-motion:reduce){#zikalp-loader *,#zikalp-loader *::before,#zikalp-loader *::after{animation-duration:.001ms!important;animation-iteration-count:1!important}}
+</style>
 </head>
 <body>
+  <div id="zikalp-loader" role="status" aria-live="polite" aria-label="Loading Zikalp">
+    <div class="z-loader-orb z-loader-orb--violet"></div><div class="z-loader-orb z-loader-orb--pink"></div>
+    <div class="z-loader-card">
+      <p class="z-loader-kicker">Zikalp marketplace</p>
+      <div class="z-loader-bag-wrap" aria-hidden="true"><div class="z-loader-handle"></div><div class="z-loader-bag">✦</div><div class="z-loader-spark"></div></div>
+      <h1 class="z-loader-title">Good things<br>are <span>loading.</span></h1>
+      <p class="z-loader-copy" id="zLoaderCopy">Curating your next obsession…</p>
+      <div class="z-loader-progress" aria-hidden="true"><span></span></div>
+      <p class="z-loader-signoff">Stay cute. Shop smart.</p>
+    </div>
+  </div>
 
   <!-- ============ NAVBAR ============ -->
   <header class="navbar">
@@ -6463,6 +6494,27 @@
     renderBannerAdminGrid();
     showToast('Banners reset to default');
   });
+
+  // Keep the first visit feeling intentional, then reveal the marketplace smoothly.
+  (function(){
+    const loader = document.getElementById('zikalp-loader');
+    const copy = document.getElementById('zLoaderCopy');
+    const messages = ['Curating your next obsession…', 'Adding sparkle to the shelves…', 'Finding pieces with main-character energy…', 'Almost ready to scroll & slay…'];
+    let messageIndex = 0;
+    const messageTimer = setInterval(() => {
+      messageIndex = (messageIndex + 1) % messages.length;
+      if (copy) copy.textContent = messages[messageIndex];
+    }, 1500);
+    const dismissLoader = () => {
+      clearInterval(messageTimer);
+      window.setTimeout(() => {
+        loader.classList.add('is-hidden');
+        window.setTimeout(() => loader.remove(), 600);
+      }, 650);
+    };
+    if (document.readyState === 'complete') dismissLoader();
+    else window.addEventListener('load', dismissLoader, { once:true });
+  })();
 
 </script>
 </body>
