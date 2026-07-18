@@ -1926,6 +1926,10 @@
   /* ============ SHOP REELS ============ */
   .reels-section{padding:18px 0 36px;background:linear-gradient(180deg,transparent,rgba(123,97,255,.05))}.reels-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:16px}.reels-head h2{margin:0;font-family:var(--font-display);font-size:clamp(1.55rem,3vw,2.2rem);letter-spacing:-.055em}.reels-head p{margin:5px 0 0;color:var(--text-dim);font-size:.9rem}.reels-upload-btn{border:0;border-radius:999px;padding:11px 16px;background:var(--lime);color:var(--on-bright);font:700 .78rem var(--font-mono);cursor:pointer;white-space:nowrap}.reels-upload-btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(200,255,77,.2)}.reels-scroller{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(190px,220px);gap:14px;overflow-x:auto;padding:3px 2px 12px;scroll-snap-type:x mandatory;scrollbar-width:thin}.reel-card{position:relative;aspect-ratio:9/14;overflow:hidden;border:1px solid var(--line);border-radius:18px;background:var(--ink-card);box-shadow:var(--shadow-card);scroll-snap-align:start}.reel-card video{width:100%;height:100%;object-fit:cover;background:#111}.reel-card::after{content:"";position:absolute;inset:40% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.82));pointer-events:none}.reel-card-info{position:absolute;z-index:1;right:13px;bottom:13px;left:13px;color:#fff}.reel-card-info strong{display:block;font-size:.9rem;line-height:1.2}.reel-card-info small{display:block;margin-top:4px;color:rgba(255,255,255,.72)}.reel-product-link{width:100%;margin-top:10px;border:0;border-radius:9px;padding:9px;background:#fff;color:#111;font-weight:800;font-size:.75rem;cursor:pointer}.reels-empty{display:flex;align-items:center;justify-content:center;min-height:180px;border:1px dashed var(--overlay-line);border-radius:18px;color:var(--text-dim);font-size:.9rem}.reel-upload-overlay{position:fixed;inset:0;z-index:9500;display:none;place-items:center;padding:20px;background:rgba(0,0,0,.67);backdrop-filter:blur(8px)}.reel-upload-overlay.show{display:grid}.reel-upload-dialog{width:min(94vw,490px);padding:26px;border:1px solid var(--overlay-line);border-radius:20px;background:var(--ink-card);box-shadow:var(--shadow-pop)}.reel-upload-dialog h3{margin:0 0 7px;font-family:var(--font-display);font-size:1.5rem}.reel-upload-dialog p{margin:0 0 19px;color:var(--text-dim);font-size:.88rem}.reel-upload-dialog label{display:block;margin:13px 0 6px;font-size:.78rem;font-weight:700}.reel-upload-dialog select,.reel-upload-dialog input{width:100%;padding:11px;border:1px solid var(--overlay-line);border-radius:10px;background:var(--overlay-3);color:var(--paper);font:inherit}.reel-upload-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}.reel-upload-actions button{border:0;border-radius:10px;padding:10px 15px;font-weight:800;cursor:pointer}.reel-cancel-btn{background:var(--overlay-6);color:var(--paper)}.reel-submit-btn{background:var(--lime);color:var(--on-bright)}.reel-submit-btn:disabled{opacity:.5;cursor:not-allowed}@media(max-width:600px){.reels-head{align-items:flex-start;flex-direction:column;gap:12px}.reels-upload-btn{width:100%}.reels-scroller{grid-auto-columns:62vw}}
 </style>
+<style>
+  /* Full-screen Shorts-style viewer */
+  #reelsSection{display:none!important}.nav-reels-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:9px 13px;background:var(--ink-card);color:var(--paper);font:700 .78rem var(--font-mono);cursor:pointer}.nav-reels-btn:hover{border-color:var(--lime);color:var(--lime)}.reels-viewer{position:fixed;inset:0;z-index:9400;display:none;background:#09090c;color:#fff}.reels-viewer.show{display:block}.reels-viewer-top{position:absolute;z-index:2;top:0;right:0;left:0;display:flex;align-items:center;justify-content:space-between;padding:17px max(18px,calc((100vw - 520px)/2));background:linear-gradient(#09090c,transparent);pointer-events:none}.reels-viewer-title{font:800 1.25rem var(--font-display);letter-spacing:-.04em}.reels-viewer-title span{color:var(--lime)}.reels-viewer-actions{display:flex;gap:8px;pointer-events:auto}.reels-viewer-actions button{border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:9px 12px;background:rgba(12,12,15,.66);color:#fff;font:700 .72rem var(--font-mono);cursor:pointer;backdrop-filter:blur(8px)}.reels-viewer-actions button:hover{border-color:var(--lime);color:var(--lime)}.reels-viewer-feed{height:100dvh;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none}.reels-viewer-feed::-webkit-scrollbar{display:none}.short-reel{position:relative;height:100dvh;display:grid;place-items:center;scroll-snap-align:start}.short-reel-frame{position:relative;width:min(100%,480px);height:100dvh;overflow:hidden;background:#17171b}.short-reel video{width:100%;height:100%;object-fit:cover}.short-reel-shade{position:absolute;inset:45% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.86));pointer-events:none}.short-reel-info{position:absolute;z-index:1;right:21px;bottom:28px;left:21px}.short-reel-seller{margin:0 0 7px;color:var(--lime);font:700 .72rem var(--font-mono)}.short-reel-info h3{max-width:78%;margin:0;font:700 1.22rem/1.05 var(--font-display);letter-spacing:-.035em}.short-reel-info p{margin:7px 0 14px;color:rgba(255,255,255,.75);font-size:.85rem}.short-reel-shop{border:0;border-radius:10px;padding:12px 15px;background:var(--lime);color:#111;font-weight:900;cursor:pointer}.short-reel-empty{height:100dvh;display:grid;place-items:center;padding:30px;text-align:center;color:rgba(255,255,255,.66)}@media(max-width:760px){.nav-reels-btn{padding:9px}.nav-reels-btn span{display:none}.reels-viewer-top{padding:16px}.short-reel-frame{width:100%}}
+</style>
 </head>
 <body>
   <div id="zikalp-loader" role="status" aria-live="polite" aria-label="Loading Zikalp">
@@ -1964,6 +1968,7 @@
       </div>
 
       <div class="nav-actions">
+        <button class="nav-reels-btn" id="openReelsBtn" aria-label="Open product reels"><span>▶</span><span>Reels</span></button>
         <div class="tab-group" role="tablist" aria-label="Marketplace mode">
           <button class="tab-btn active" id="tabExplore" role="tab" aria-selected="true">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -2323,6 +2328,11 @@
   <div class="reel-upload-overlay" id="reelUploadOverlay" role="dialog" aria-modal="true" aria-labelledby="reelUploadTitle">
     <form class="reel-upload-dialog" id="reelUploadForm"><h3 id="reelUploadTitle">Post a product reel</h3><p>Make it short, clear, and linked to the exact item buyers can shop.</p><label for="reelProductSelect">Product</label><select id="reelProductSelect" required></select><label for="reelVideoInput">Vertical video (MP4/WebM, up to 50 MB)</label><input id="reelVideoInput" type="file" accept="video/mp4,video/webm" required><div class="reel-upload-actions"><button class="reel-cancel-btn" type="button" id="reelCancelBtn">Cancel</button><button class="reel-submit-btn" id="reelSubmitBtn" type="submit">Publish reel</button></div></form>
   </div>
+
+  <section class="reels-viewer" id="reelsViewer" aria-label="Product reels">
+    <div class="reels-viewer-top"><div class="reels-viewer-title">Zikalp <span>Reels</span></div><div class="reels-viewer-actions"><button id="reelsViewerUploadBtn">+ Post reel</button><button id="closeReelsBtn" aria-label="Close reels">✕ Close</button></div></div>
+    <div class="reels-viewer-feed" id="reelsViewerFeed"></div>
+  </section>
 
   <!-- ============ PRODUCT GRID ============ -->
   <section class="explore-section" id="exploreSection">
@@ -3542,6 +3552,8 @@
   const reelProductSelect = document.getElementById('reelProductSelect');
   const reelVideoInput = document.getElementById('reelVideoInput');
   const reelSubmitBtn = document.getElementById('reelSubmitBtn');
+  const reelsViewer = document.getElementById('reelsViewer');
+  const reelsViewerFeed = document.getElementById('reelsViewerFeed');
 
   function escapeReelText(value){ return String(value || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
   function renderReels(){
@@ -3559,11 +3571,30 @@
     });
     reelsScroller.querySelectorAll('[data-reel-product-id]').forEach(btn => btn.addEventListener('click', () => navigateTo('product-page', { id: btn.dataset.reelProductId })));
   }
+  function renderReelsViewer(){
+    if (!reelsViewerFeed) return;
+    if (!REELS.length) { reelsViewerFeed.innerHTML = '<div class="short-reel-empty"><div><strong>No product reels yet.</strong><br><br>Be the first seller to post one.</div></div>'; return; }
+    reelsViewerFeed.innerHTML = REELS.map(reel => {
+      const product = PRODUCTS.find(p => String(p.id) === String(reel.product_id));
+      const title = product?.title || reel.product_title || 'Shop this product';
+      const price = product ? formatPrice(product.price) : '';
+      return `<article class="short-reel"><div class="short-reel-frame"><video src="${encodeURI(reel.video_url)}" muted loop playsinline preload="metadata"></video><div class="short-reel-shade"></div><div class="short-reel-info"><p class="short-reel-seller">@${escapeReelText(reel.seller_name || 'seller')}</p><h3>${escapeReelText(title)}</h3><p>${escapeReelText(price)}</p><button class="short-reel-shop" data-short-product-id="${escapeReelText(reel.product_id)}">Shop this product →</button></div></div></article>`;
+    }).join('');
+    reelsViewerFeed.querySelectorAll('[data-short-product-id]').forEach(btn => btn.addEventListener('click', () => { closeReelsViewer(); navigateTo('product-page', { id:btn.dataset.shortProductId }); }));
+    const videos = reelsViewerFeed.querySelectorAll('video');
+    const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+      const video = entry.target;
+      if (entry.isIntersecting && entry.intersectionRatio > .72) video.play().catch(() => {}); else video.pause();
+    }), { root:reelsViewerFeed, threshold:[.72] });
+    videos.forEach(video => observer.observe(video));
+  }
+  function openReelsViewer(){ renderReelsViewer(); reelsViewer.classList.add('show'); document.body.style.overflow = 'hidden'; }
+  function closeReelsViewer(){ reelsViewer.classList.remove('show'); document.body.style.overflow = ''; reelsViewerFeed.querySelectorAll('video').forEach(video => video.pause()); }
   async function loadReelsFromSupabase(){
     if (!SUPABASE_ENABLED) return;
     const { data, error } = await supabaseClient.from('reels').select('*').eq('status','published').order('created_at',{ascending:false});
     if (error) { logSupabaseError('load reels', error); renderReels(); return; }
-    REELS = data || []; renderReels();
+    REELS = data || []; renderReels(); if (reelsViewer.classList.contains('show')) renderReelsViewer();
   }
   function openReelUpload(){
     if (!currentUser) { requireAuth(openReelUpload); return; }
@@ -3596,6 +3627,9 @@
   document.getElementById('reelCancelBtn').addEventListener('click', () => reelUploadOverlay.classList.remove('show'));
   reelUploadOverlay.addEventListener('click', e => { if (e.target === reelUploadOverlay) reelUploadOverlay.classList.remove('show'); });
   document.getElementById('reelUploadForm').addEventListener('submit', uploadReel);
+  document.getElementById('openReelsBtn').addEventListener('click', openReelsViewer);
+  document.getElementById('closeReelsBtn').addEventListener('click', closeReelsViewer);
+  document.getElementById('reelsViewerUploadBtn').addEventListener('click', openReelUpload);
 
   let revealed = 6;
   const grid = document.getElementById('productGrid');
